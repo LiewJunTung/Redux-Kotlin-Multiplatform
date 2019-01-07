@@ -12,6 +12,27 @@ version '0.0.1'
 
 apply plugin: 'maven-publish'
 
+def Properties properties = new Properties()
+properties.load(project.rootProject.file("local.properties").newDataInputStream())
+def nexusUrl = properties.getProperty("nexusUrl")
+def nexusUsername = properties.getProperty("nexusUsername")
+def nexusPassword = properties.getProperty("nexusPassword")
+
+publishing {
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+            credentials {
+                username nexusUsername
+                password nexusPassword
+            }
+            def releasesRepoUrl = "$nexusUrl/repository/maven-releases"
+            def snapshotsRepoUrl = "$nexusUrl/repository/maven-snapshots"
+            url = uri((version.toString().endsWith("SNAPSHOT"))? snapshotsRepoUrl: releasesRepoUrl)
+        }
+    }
+}
+
 kotlin {
     targets {
         fromPreset(presets.jvm, 'jvm')
